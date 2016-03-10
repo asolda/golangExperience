@@ -61,9 +61,25 @@ func (st *stack) Eval() {
 	}
 }
 
+// func handleSum(st *stack) {
+// 	str1, _ := st.Pop()
+// 	str2, _ := st.Pop()
+// 	val1, err1 := strconv.Atoi(str1)
+// 	val2, err2 := strconv.Atoi(str2)
+// 	if err1 != nil || err2 != nil {
+// 		fmt.Println("I wasn't able to pop a number out of the stack, quitting...")
+// 		os.Exit(-1)
+// 	}
+// 	st.Push(strconv.Itoa(val1 + val2))
+// }
+
 func handleSum(st *stack) {
 	str1, _ := st.Pop()
 	str2, _ := st.Pop()
+	if str2 == "+" {
+		handleSum(st)
+		str2, _ = st.Pop()
+	}
 	val1, err1 := strconv.Atoi(str1)
 	val2, err2 := strconv.Atoi(str2)
 	if err1 != nil || err2 != nil {
