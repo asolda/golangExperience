@@ -18,7 +18,7 @@ func main() {
 	for scanner.Scan() {
 		in := scanner.Text()
 		switch {
-		case pushToStack.MatchString(in), in == "+", in == "s":
+		case pushToStack.MatchString(in), in == "+", in == "-", in == "s":
 			s.Push(in)
 		case in == "e":
 			s.Eval()
