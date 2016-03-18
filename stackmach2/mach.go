@@ -6,7 +6,7 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/luigi/golangExperience/stackmach2/stack"
+	"github.com/asolda/golangExperience/stackmach2/stack"
 )
 
 var pushToStack = regexp.MustCompile("^[0-9]*$")
