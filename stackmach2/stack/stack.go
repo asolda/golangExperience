@@ -117,8 +117,43 @@ func handleSwap(st *stack) {
 	st.Push(elem2)
 }
 
-func (st *stack) Convert(v string) {
-	v = strings.Replace(v, " ", "", -1)
+func toArray(s string) []string {
+	size := len(s)
+	index := 0
+	toReturn := make([]string, size)
+	for i := 0; i < size; i++ {
+		if string(s[i]) == "+" || string(s[i]) == "-" {
+			toReturn[index] = string(s[i])
+			index++
+		} else {
+			symbol := make([]string, size-i)
+			symbol = append(symbol, string(s[i]))
+			if i == size-1 {
+				toReturn[index] = strings.TrimSpace(strings.Join(symbol, ""))
+				return toReturn
+			}
+			next := s[i+1]
+			for string(next) != "+" && string(next) != "-" {
+				symbol = append(symbol, string(next))
+				i++
+				if i == size-1 {
+					toReturn[index] = strings.TrimSpace(strings.Join(symbol, ""))
+					return toReturn
+				}
+				next = s[i+1]
+			}
+			toReturn[index] = strings.TrimSpace(strings.Join(symbol, ""))
+			index++
+		}
+	}
+
+	return toReturn
+}
+
+func (st *stack) Convert(s string) {
+	s = strings.TrimSpace(s)
+	s = strings.Replace(s, " ", "", -1)
+	v := toArray(s)
 	size := len(v)
 	count := 0
 
