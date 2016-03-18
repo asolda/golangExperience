@@ -117,10 +117,19 @@ func handleSwap(st *stack) {
 	st.Push(elem2)
 }
 
+
+
 func toArray(s string) []string {
 	size := len(s)
 	index := 0
-	toReturn := make([]string, size)
+        numOp := 0
+        for i := 0; i < size; i++ {
+           if string(s[i]) == "+" || string(s[i]) == "-" {
+			numOp++
+		}
+         }
+        toReturn := make([]string, numOp*2+1)
+	//toReturn := make([]string, size)
 	for i := 0; i < size; i++ {
 		if string(s[i]) == "+" || string(s[i]) == "-" {
 			toReturn[index] = string(s[i])
