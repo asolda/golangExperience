@@ -5,21 +5,20 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"github.com/luigi/golangExperience/stackmach/stack2"
+
+	"github.com/asolda/golangExperience/stackmach2/stack"
 )
 
 var pushToStack = regexp.MustCompile("^[0-9]*$")
 
 func main() {
-	
+
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Printf("> ")
-        s := stack.NewStack()
+	s := stack.NewStack()
 	for scanner.Scan() {
 		in := scanner.Text()
-                s.Convert(in)
+		s.Convert(in)
 		fmt.Printf("> ")
 	}
 }
-
-

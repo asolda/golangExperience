@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -102,7 +103,7 @@ func handleSub(st *stack) {
 		fmt.Println("I wasn't able to pop a number out of the stack, quitting...")
 		os.Exit(-1)
 	}
-	st.Push(strconv.Itoa(val1 - val2))
+	st.Push(strconv.Itoa(val2 - val1))
 }
 
 func handleSwap(st *stack) {
@@ -116,36 +117,31 @@ func handleSwap(st *stack) {
 	st.Push(elem2)
 }
 
-func (st *stack) Convert(v string)  {
-     size:=len(v)
-     count:=0;
-    
-     for i := 0; i <size; i++ {
-        switch(count){
-        case 1:
-             val:=string(v[i])
-             st.Push(val)
-             st.Push("s")
-             st.Eval()
-             st.Eval()
-             count=0
-        case 0:
-             if string(v[i])=="+" || string(v[i])=="-"{
-             if string(v[i])=="-"{
-                st.Push(string(v[i+1])) 
-             }
-             count=1
-             val:=string(v[i])
-             st.Push(val)
-             i++
-             }else{
-             count=0
-             val:=string(v[i])
-             st.Push(val)
-             }
-        }
-        
-     }
-     st.PrintStack(os.Stdout)
-     
+func (st *stack) Convert(v string) {
+	v = strings.Replace(v, " ", "", -1)
+	size := len(v)
+	count := 0
+
+	for i := 0; i < size; i++ {
+		switch count {
+		case 1:
+			val := string(v[i])
+			st.Push(val)
+			st.Push("s")
+			st.Eval()
+			st.Eval()
+			count = 0
+		case 0:
+			if string(v[i]) == "+" || string(v[i]) == "-" {
+				count = 1
+			} else {
+				count = 0
+			}
+			val := string(v[i])
+			st.Push(val)
+		}
+
+	}
+	st.PrintStack(os.Stdout)
+
 }
