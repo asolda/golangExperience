@@ -79,6 +79,22 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
      
       /* whitespace */
       {WhiteSpace}                   { /* ignore */ }
+      /* KEYWORDS */	
+	"break" 	{return symbol(sym.BREAK); }      
+	"default" 	{return symbol(sym.DEFAULT);}
+	"func" 		{return symbol(sym.FUNC); }      
+	"interface" 	{return symbol(sym.INTERFACE); }   
+	"select" 	{return symbol(sym.SELECT); }
+	"case" 		{return symbol(sym.CASE); }
+	"defer" 	{return symbol(sym.DEFER); }
+	"go" 		{return symbol(sym.GO);}
+	"map" 		{return symbol(sym.MAP); }
+	"struct" 	{return symbol(sym.TIME); }
+	"chan" 		{return symbol(sym.CHAN); }         
+	"else" 		{return symbol(sym.ELSE); }
+	"goto" 		{return symbol(sym.GOTO); }
+
+
     }
 
 <STRING> {
