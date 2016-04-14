@@ -93,6 +93,18 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
 	"chan" 		{return symbol(sym.CHAN); }         
 	"else" 		{return symbol(sym.ELSE); }
 	"goto" 		{return symbol(sym.GOTO); }
+	"package"	{return symbol(sym.PACKEGE); }      
+	"switch"	{return symbol(sym.SWITCH); }
+	"const"		{return symbol(sym.CONST); }        
+	"fallthrough"	{return symbol(sym.FALLTHROUGH); }  	
+	"if"		{return symbol(sym.IF); }
+	"range"		{return symbol(sym.RANGE); }        
+	"type"		{return symbol(sym.TYPE); }
+	"continue"	{return symbol(sym.CONTINUE); }     
+	"for"		{return symbol(sym.FOR); }          
+	"import"	{return symbol(sym.IMPORT); }       
+	"return"	{return symbol(sym.RETURN); }
+	"var"		{return symbol(sym.VAR); }
 
 
     }
