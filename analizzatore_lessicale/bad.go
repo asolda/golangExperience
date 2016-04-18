@@ -1,4 +1,4 @@
-pakage main
+//pakage main
 
 func mmain() {
     var zz inte

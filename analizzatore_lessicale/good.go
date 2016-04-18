@@ -1,5 +1,8 @@
+/* Commento di prova */
+
 package main
 
+// commento alla funzione
 func main() {
 	i := 0
 	a := 0
