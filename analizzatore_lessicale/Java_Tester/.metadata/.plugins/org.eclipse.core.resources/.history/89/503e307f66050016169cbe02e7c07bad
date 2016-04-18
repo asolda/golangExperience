@@ -1,0 +1,10 @@
+package test;
+
+import java_cup.runtime.Symbol;
+
+public class LexerGolangTest {
+	public static void main(String[] args) {
+		Symbol sym;
+		
+	}
+}

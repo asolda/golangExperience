@@ -1,0 +1,10 @@
+package lexer;
+
+public class sym {
+	public static final int EOF = 0;
+	public static final int DIV = 3; 
+	public static final int TIME = 4;
+	public static final int OCTAL_LITERAL = 5;
+	public static final int EQ = 7;
+	
+}

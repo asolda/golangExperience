@@ -5,7 +5,6 @@ package lexer;
 /* JFlex for go example */
 
 import java_cup.runtime.*;
-import jflex.sym;
 
 class Lexer implements java_cup.runtime.Scanner {
 
@@ -821,7 +820,7 @@ class Lexer implements java_cup.runtime.Scanner {
             }
           case 100: break;
           case 16: 
-            { return symbol(sym.AS);
+            { return symbol(sym.OS);
             }
           case 101: break;
           case 17: 
