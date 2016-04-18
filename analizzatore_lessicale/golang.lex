@@ -34,7 +34,6 @@ DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent = ( [^*] | \*+ [^/*] )*
 
 Letter = "a" ... "z" | "A" ... "Z" | "_"
-
 Decimal_digit = "0" ... "9"
 Octal_digit   = "0" ... "7"
 Hex_digit     = "0" ... "9" | "A" ... "F" | "a" ... "f"
@@ -73,6 +72,48 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
       "+"                            { return symbol(sym.PLUS); }
       "-"                            { return symbol(sym.MINUS); }
       "*"                            { return symbol(sym.TIME); }
+	"&"	{ return symbol(sym.AND);} 
+	"+="	{ return symbol(sym.PLUSEQ);}
+	"&="	{ return symbol(sym.ANDEQ);}
+	"&&"	{ return symbol(sym.ANDAND);}
+	"!="	{ return symbol(sym.NOTEQ);}
+	"("	{ return symbol(sym.RO); }    
+	")"	{ return symbol(sym.RC); }
+	"|"	{ return symbol(sym.OR); }     
+	"-="	{ return symbol(sym.MINUSEQ); }    
+	"|="	{ return symbol(sym.OREQ); }     
+	"||"	{ return symbol(sym.OROR); }    
+	"<"	{ return symbol(sym.AO); }     
+	"<="	{ return symbol(sym.MINUSEQ); }    
+	"["	{ return symbol(sym.AS); }    
+	"]"	{ return symbol(sym.CS); }
+	"^"	{ return symbol(sym.CAP); }     
+	"*="	{ return symbol(sym.TIMEEQ); }    
+	"^="	{ return symbol(sym.CAPEQ); }     
+	"<-"	{ return symbol(sym.AOMINUS); }    
+	">"	{ return symbol(sym.AC); }     
+	">="	{ return symbol(sym.AOEQUALS); }    
+	"{"	{ return symbol(sym.BRACEO); }    
+	"}"	{ return symbol(sym.BRACEC); }
+	"/"	{ return symbol(sym.DIV); }    
+	"<<"	{ return symbol(sym.AOAO); }    
+	"/="	{ return symbol(sym.DIVEQ); }    
+	"<<="	{ return symbol(sym.AOAOEQ); }    
+	"++"	{ return symbol(sym.PLUSPLUS); }    
+	":="	{ return symbol(sym.TPEQ); }    
+	","	{ return symbol(sym.COMMA); }    
+	";"	{ return symbol(sym.SEMICOLON); }
+	"%"	{ return symbol(sym.PERC); }    
+	">>"	{ return symbol(sym.ACAC); }    
+	"%="	{ return symbol(sym.PERCEQ); }    
+	">>="	{ return symbol(sym.ACACEQ); }    
+	"--"	{ return symbol(sym.MINUSMINUS); }    
+	"!"	{ return symbol(sym.NOT); }     
+	"..."	{ return symbol(sym.POINTPOINTPOINT); }   
+	"."	{ return symbol(sym.POINT); }    
+	":"	{ return symbol(sym.TP); }
+	"&^"	{ return symbol(sym.ANDCAP); }          
+	"&^="	{ return symbol(sym.ANDCAPEQ); }
 
       /* comments */
       {Comment}                      { /* ignore */ }
@@ -93,7 +134,7 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
 	"chan" 		{return symbol(sym.CHAN); }         
 	"else" 		{return symbol(sym.ELSE); }
 	"goto" 		{return symbol(sym.GOTO); }
-	"package"	{return symbol(sym.PACKEGE); }      
+	"package"	{return symbol(sym.PACKAGE); }      
 	"switch"	{return symbol(sym.SWITCH); }
 	"const"		{return symbol(sym.CONST); }        
 	"fallthrough"	{return symbol(sym.FALLTHROUGH); }  	
@@ -105,8 +146,6 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
 	"import"	{return symbol(sym.IMPORT); }       
 	"return"	{return symbol(sym.RETURN); }
 	"var"		{return symbol(sym.VAR); }
-
-
     }
 
 <STRING> {
