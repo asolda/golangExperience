@@ -1,0 +1,27 @@
+INDEX VERSION 1.127+/Users/andreasolda/Documents/Research/go/src/github.com/asolda/golangExperience/analizzatore_lessicale/Java_Tester/.metadata/.plugins/org.eclipse.jdt.core
+195092301.index
+960409867.index
+3861527334.index
+1188938806.index
+3688561912.index
+2649669512.index
+3966302778.index
+2944117708.index
+3391621107.index
+2072191092.index
+2530618097.index
+609750510.index
+2087539873.index
+1180046439.index
+3246483238.index
+2547940302.index
+4086528307.index
+3388682156.index
+3301973527.index
+3407417307.index
+1431712556.index
+2998348814.index
+3753342716.index
+57975724.index
+966253644.index
+1271342938.index
