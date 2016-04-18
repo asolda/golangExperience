@@ -2,7 +2,7 @@ package test;
 
 import java.io.FileReader;
 
-import lexer.Lexer;
+import java_cup.Lexer;
 import java_cup.runtime.Symbol;
 
 public class LexerGolangTest {
