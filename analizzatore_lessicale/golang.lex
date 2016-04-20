@@ -33,19 +33,17 @@ EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent = ( [^*] | \*+ [^/*] )*
 
-Letter = "a" ... "z" | "A" ... "Z" | "_"
-Decimal_digit = "0" ... "9"
-Octal_digit   = "0" ... "7"
-Hex_digit     = "0" ... "9" | "A" ... "F" | "a" ... "f"
+Letter = [a-zA-Z_]
+Decimal_digit = [0-9]
+Octal_digit   = [0-7]
+Hex_digit     = [0-9a-fA-F]
 
-Unicode_digit = {Decimal_digit} | {Octal_digit} | {Hex_digit}
 
-Identifier = Letter {Letter}+ | {Unicode_digit}+
 
-Int_lit     = decimal_lit | octal_lit | hex_lit
-Decimal_lit = ( "1" … "9" ) {Decimal_digit}*
+Hex_lit     = "0" [xX] [0-9a-fA-F] {Hex_digit}*
 Octal_lit   = "0" {Octal_digit}*
-Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
+Decimal_lit = [1-9] {Decimal_digit}*
+Identifier = [a-zA-Z_] {Letter}*
 
 %state STRING
 
@@ -56,15 +54,34 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
 <YYINITIAL> "package"                { return symbol(sym.PACKAGE); }
 
  <YYINITIAL> {
-      /* identifiers */ 
-      {Identifier}                   { return symbol(sym.IDENTIFIER); }
      
-      /* literals */
-      {Int_lit}                      { return symbol(sym.INTEGER_LITERAL); }
-      {Decimal_lit}                  { return symbol(sym.DECIMAL_LITERAL); }
-      {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); }
-      {Hex_lit}                      { return symbol(sym.HEX_LITERAL); }
-      \"                             { string.setLength(0); yybegin(STRING); }
+
+      /* KEYWORDS */	
+	"break" 	{return symbol(sym.BREAK); }      
+	"default" 	{return symbol(sym.DEFAULT);}
+	"func" 		{return symbol(sym.FUNC); }      
+	"interface" 	{return symbol(sym.INTERFACE); }   
+	"select" 	{return symbol(sym.SELECT); }
+	"case" 		{return symbol(sym.CASE); }
+	"defer" 	{return symbol(sym.DEFER); }
+	"go" 		{return symbol(sym.GO);}
+	"map" 		{return symbol(sym.MAP); }
+	"struct" 	{return symbol(sym.TIME); }
+	"chan" 		{return symbol(sym.CHAN); }         
+	"else" 		{return symbol(sym.ELSE); }
+	"goto" 		{return symbol(sym.GOTO); }
+	"package"	{return symbol(sym.PACKAGE); }      
+	"switch"	{return symbol(sym.SWITCH); }
+	"const"		{return symbol(sym.CONST); }        
+	"fallthrough"	{return symbol(sym.FALLTHROUGH); }  	
+	"if"		{return symbol(sym.IF); }
+	"range"		{return symbol(sym.RANGE); }        
+	"type"		{return symbol(sym.TYPE); }
+	"continue"	{return symbol(sym.CONTINUE); }     
+	"for"		{return symbol(sym.FOR); }          
+	"import"	{return symbol(sym.IMPORT); }       
+	"return"	{return symbol(sym.RETURN); }
+	"var"		{return symbol(sym.VAR); }
 
       /* operators */
       "="                            { return symbol(sym.EQ); }
@@ -85,7 +102,7 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
 	"||"	{ return symbol(sym.OROR); }    
 	"<"	{ return symbol(sym.AO); }     
 	"<="	{ return symbol(sym.MINUSEQ); }    
-	"["	{ return symbol(sym.AS); }    
+	"["	{ return symbol(sym.OS); }    
 	"]"	{ return symbol(sym.CS); }
 	"^"	{ return symbol(sym.CAP); }     
 	"*="	{ return symbol(sym.TIMEEQ); }    
@@ -120,32 +137,21 @@ Hex_lit     = "0" ("x" | "X") Hex_digit {Hex_digit}*
      
       /* whitespace */
       {WhiteSpace}                   { /* ignore */ }
-      /* KEYWORDS */	
-	"break" 	{return symbol(sym.BREAK); }      
-	"default" 	{return symbol(sym.DEFAULT);}
-	"func" 		{return symbol(sym.FUNC); }      
-	"interface" 	{return symbol(sym.INTERFACE); }   
-	"select" 	{return symbol(sym.SELECT); }
-	"case" 		{return symbol(sym.CASE); }
-	"defer" 	{return symbol(sym.DEFER); }
-	"go" 		{return symbol(sym.GO);}
-	"map" 		{return symbol(sym.MAP); }
-	"struct" 	{return symbol(sym.TIME); }
-	"chan" 		{return symbol(sym.CHAN); }         
-	"else" 		{return symbol(sym.ELSE); }
-	"goto" 		{return symbol(sym.GOTO); }
-	"package"	{return symbol(sym.PACKAGE); }      
-	"switch"	{return symbol(sym.SWITCH); }
-	"const"		{return symbol(sym.CONST); }        
-	"fallthrough"	{return symbol(sym.FALLTHROUGH); }  	
-	"if"		{return symbol(sym.IF); }
-	"range"		{return symbol(sym.RANGE); }        
-	"type"		{return symbol(sym.TYPE); }
-	"continue"	{return symbol(sym.CONTINUE); }     
-	"for"		{return symbol(sym.FOR); }          
-	"import"	{return symbol(sym.IMPORT); }       
-	"return"	{return symbol(sym.RETURN); }
-	"var"		{return symbol(sym.VAR); }
+
+ 
+     
+      /* literals */
+     // {Int_lit}                      { return symbol(sym.INTEGER_LITERAL); }
+      {Hex_lit}                      { return symbol(sym.HEX_LITERAL); }
+      {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); }
+      {Decimal_lit}                  { return symbol(sym.DECIMAL_LITERAL); }
+      
+     
+      \"                             { string.setLength(0); yybegin(STRING); }
+
+/* identifiers */ 
+      {Identifier}                   { return symbol(sym.IDENTIFIER); }
+
     }
 
 <STRING> {

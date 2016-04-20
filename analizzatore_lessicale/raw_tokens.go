@@ -22,3 +22,10 @@ for
 import
 return
 var
+"a"
+123
+0xA
+wdwqd
+||
+
+
