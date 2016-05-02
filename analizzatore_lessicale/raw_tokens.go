@@ -22,10 +22,11 @@ for
 import
 return
 var
-"a"
+"una stringa"
 123
 0xA
 wdwqd
+int sadsadsadsadasd
 ||
 
 

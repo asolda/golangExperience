@@ -4,9 +4,13 @@ package main
 
 // commento alla funzione
 func main() {
-	i := 0
+	i := 03
 	a := 0
-
+        int *puntatore
+	float32 floatNumber 10.2 
+	10i
+	
+        String stringa := "waw"
 	for i < 100 {
 		a += i
 	}

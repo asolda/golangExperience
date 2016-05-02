@@ -12,7 +12,7 @@ public class LexerGolangTest {
 		try {
 			Lexer l = new Lexer(new FileReader(args[0]));
 			for(sym = l.next_token(); sym.sym != 0; sym = l.next_token()) {
-				System.out.println("< " + sym.sym + " > at line " + sym.left);
+				System.out.println("< " + sym.sym +" > at line " + sym.left);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

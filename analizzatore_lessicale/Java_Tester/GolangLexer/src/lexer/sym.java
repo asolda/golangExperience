@@ -78,5 +78,27 @@ public class sym {
 	public static final int CONTINUE = 82;
 	public static final int INTERFACE = 83;
 	public static final int FALLTHROUGH = 84;
+	public static final int INT = 100;
+	public static final int BYTE = 200;
+	public static final int RUNE = 300;
+	public static final int UINT = 400;
+	public static final int INT8 = 500;
+	public static final int INT16 = 600;
+	public static final int INT64 = 700;
+	public static final int INT32 = 800;
+	public static final int UINT8 = 900;
+	public static final int UINT64 = 1000;
+	public static final int UINT32 = 110;
+	public static final int FLOAT64 = 120;
+	public static final int FLOAT32 = 130;
+	public static final int UINTPTR = 123;
+	public static final int COMPLEX64 = 345;
+	public static final int UINT16 = 34645;
+	public static final int COMPLEX128 = 546;
+	public static final int POINTER = 678;
+	public static final int COMMENT = 543;
+	public static final int IMAGINARY_LITERAL=678;
+	public static final int FLOAT_LITERAL=876;
+	
 	
 }

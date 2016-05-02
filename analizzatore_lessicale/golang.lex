@@ -9,6 +9,7 @@ import java_cup.runtime.*;
 %cup
 %line
 %column
+%debug
 
 %{
     StringBuffer string = new StringBuffer();
@@ -34,6 +35,7 @@ DocumentationComment = "/**" {CommentContent} "*"+ "/"
 CommentContent = ( [^*] | \*+ [^/*] )*
 
 Letter = [a-zA-Z_]
+
 Decimal_digit = [0-9]
 Octal_digit   = [0-7]
 Hex_digit     = [0-9a-fA-F]
@@ -41,10 +43,12 @@ Hex_digit     = [0-9a-fA-F]
 
 
 Hex_lit     = "0" [xX] [0-9a-fA-F] {Hex_digit}*
+Decimal_lit = [1-9] {Decimal_digit}* | "0"
 Octal_lit   = "0" {Octal_digit}*
-Decimal_lit = [1-9] {Decimal_digit}*
+Float_lit = ({Decimal_lit} "." {Decimal_lit})
+Pointer = (\*{Identifier})
 Identifier = [a-zA-Z_] {Letter}*
-
+Imaginary_lit = {Decimal_lit } | {Float_lit} "i" 
 %state STRING
 
 %%
@@ -82,14 +86,32 @@ Identifier = [a-zA-Z_] {Letter}*
 	"import"	{return symbol(sym.IMPORT); }       
 	"return"	{return symbol(sym.RETURN); }
 	"var"		{return symbol(sym.VAR); }
+	"uint8"		{return symbol(sym.UINT8); }
+	"uint16"	{return symbol(sym.UINT16); }
+	"uint32"	{return symbol(sym.UINT32); }
+	"uint64"	{return symbol(sym.UINT64); }
+	"int8"		{return symbol(sym.INT8); }
+	"int16"		{return symbol(sym.INT16); }
+	"int32"		{return symbol(sym.INT32); }
+	"int64"		{return symbol(sym.INT64); }
+	"float32"	{return symbol(sym.FLOAT32); }
+	"float64"	{return symbol(sym.FLOAT64); }
+	"complex64"	{return symbol(sym.COMPLEX64); }
+	"complex128"	{return symbol(sym.COMPLEX128); }
+	"byte"		{return symbol(sym.BYTE); }
+	"rune"		{return symbol(sym.RUNE); }
+	"uint"		{return symbol(sym.UINT); }
+	"int"		{return symbol(sym.INT); }
+	"uintptr"	{return symbol(sym.UINTPTR); }
+	"string"	{return symbol(sym.STRING); }
 
       /* operators */
-      "="                            { return symbol(sym.EQ); }
-      "=="                           { return symbol(sym.EQEQ); }
-      "+"                            { return symbol(sym.PLUS); }
-      "-"                            { return symbol(sym.MINUS); }
-      "*"                            { return symbol(sym.TIME); }
-	"&"	{ return symbol(sym.AND);} 
+        "="     { return symbol(sym.EQ); }
+        "=="    { return symbol(sym.EQEQ); }
+        "+"     { return symbol(sym.PLUS); }
+        "-"     { return symbol(sym.MINUS); }
+        "*"     { return symbol(sym.TIME); }
+        "&"	{ return symbol(sym.AND);} 
 	"+="	{ return symbol(sym.PLUSEQ);}
 	"&="	{ return symbol(sym.ANDEQ);}
 	"&&"	{ return symbol(sym.ANDAND);}
@@ -141,15 +163,18 @@ Identifier = [a-zA-Z_] {Letter}*
  
      
       /* literals */
-     // {Int_lit}                      { return symbol(sym.INTEGER_LITERAL); }
+
       {Hex_lit}                      { return symbol(sym.HEX_LITERAL); }
-      {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); }
       {Decimal_lit}                  { return symbol(sym.DECIMAL_LITERAL); }
+      {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); } 
+      {Float_lit}                    { return symbol(sym.FLOAT_LITERAL); }
+      {Imaginary_lit}                { return symbol(sym.IMAGINARY_LITERAL); }
       
      
       \"                             { string.setLength(0); yybegin(STRING); }
 
 /* identifiers */ 
+      {Pointer}                      { return symbol(sym.POINTER);}
       {Identifier}                   { return symbol(sym.IDENTIFIER); }
 
     }
