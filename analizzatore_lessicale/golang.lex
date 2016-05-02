@@ -47,8 +47,9 @@ Decimal_lit = [1-9] {Decimal_digit}* | "0"
 Octal_lit   = "0" {Octal_digit}*
 Float_lit = ({Decimal_lit} "." {Decimal_lit})
 Pointer = (\*{Identifier})
+Imaginary_lit = {Decimal_lit } "i" | {Float_lit} "i" 
 Identifier = [a-zA-Z_] {Letter}*
-Imaginary_lit = {Decimal_lit } | {Float_lit} "i" 
+
 %state STRING
 
 %%
@@ -164,11 +165,12 @@ Imaginary_lit = {Decimal_lit } | {Float_lit} "i"
      
       /* literals */
 
+      {Imaginary_lit}                { return symbol(sym.IMAGINARY_LITERAL); }
       {Hex_lit}                      { return symbol(sym.HEX_LITERAL); }
       {Decimal_lit}                  { return symbol(sym.DECIMAL_LITERAL); }
       {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); } 
       {Float_lit}                    { return symbol(sym.FLOAT_LITERAL); }
-      {Imaginary_lit}                { return symbol(sym.IMAGINARY_LITERAL); }
+      
       
      
       \"                             { string.setLength(0); yybegin(STRING); }
