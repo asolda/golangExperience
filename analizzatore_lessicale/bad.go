@@ -1,4 +1,6 @@
 //pakage main
+/* commento su 
+piu linee */
 
 func mmain6() {
     var zz inte
@@ -6,4 +8,10 @@ func mmain6() {
     fori := 0; i < 10; i+++ {
         _nosense(i)
     }
+
+    String stringa = "Stringa senza chiusura"
+   
+     
+
+    '
 }

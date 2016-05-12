@@ -1,7 +1,8 @@
 /* JFlex for go example */
 
 import java_cup.runtime.*;
-
+import java.util.Set;
+import java.util.Hashtable;
 %%
 
 %class Lexer
@@ -11,8 +12,46 @@ import java_cup.runtime.*;
 %column
 %debug
 
+%eofval{
+  
+    switch(zzLexicalState) {
+		case YYINITIAL:
+		break;
+		case COMMENT:
+		yybegin(YYINITIAL);
+		return symbol(sym.ERROR, "EOF in comment");
+		case STRING:
+		yybegin(YYINITIAL);
+		return symbol(sym.ERROR, "EOF in string constant");
+	}
+
+	System.out.println("symTable:");
+	Set<Integer> keys = Tables.symTable.keySet();
+        for(Integer key: keys){
+            System.out.println("Value of "+key+" is: "+Tables.symTable.get(key));
+        }
+	System.out.println("numTable:");
+	keys = Tables.numTable.keySet();
+        for(Integer key: keys){
+            System.out.println("Value of "+key+" is: "+Tables.numTable.get(key));
+        }
+	System.out.println("stringTable:");
+	keys = Tables.stringTable.keySet();
+        for(Integer key: keys){
+            System.out.println("Value of "+key+" is: "+Tables.stringTable.get(key));
+        }
+    return symbol(sym.EOF);
+%eofval}
+
+
 %{
-    StringBuffer string = new StringBuffer();
+     
+        StringBuffer buff = new StringBuffer();
+        int countNum = 0;
+	int countID = 0;
+	int countString = 0;
+	int comment_nesting = 0;
+
 
     private Symbol symbol(int type) {
         return new Symbol(type, yyline, yycolumn);
@@ -50,7 +89,7 @@ Pointer = (\*{Identifier})
 Imaginary_lit = {Decimal_lit } "i" | {Float_lit} "i" 
 Identifier = [a-zA-Z_] {Letter}*
 
-%state STRING
+%state COMMENT, STRING
 
 %%
 
@@ -58,8 +97,10 @@ Identifier = [a-zA-Z_] {Letter}*
 
 <YYINITIAL> "package"                { return symbol(sym.PACKAGE); }
 
+
  <YYINITIAL> {
      
+         string_buf.setLength(0);
 
       /* KEYWORDS */	
 	"break" 	{return symbol(sym.BREAK); }      
@@ -107,6 +148,8 @@ Identifier = [a-zA-Z_] {Letter}*
 	"string"	{return symbol(sym.STRING); }
 
       /* operators */
+
+         \'     { return symbol(sym.SINGLEQUOTE); }
         "="     { return symbol(sym.EQ); }
         "=="    { return symbol(sym.EQEQ); }
         "+"     { return symbol(sym.PLUS); }
@@ -156,7 +199,7 @@ Identifier = [a-zA-Z_] {Letter}*
 	"&^="	{ return symbol(sym.ANDCAPEQ); }
 
       /* comments */
-      {Comment}                      { /* ignore */ }
+      {Comment}                      { return symbol(sym.COMMENT); }
      
       /* whitespace */
       {WhiteSpace}                   { /* ignore */ }
@@ -167,30 +210,30 @@ Identifier = [a-zA-Z_] {Letter}*
 
       {Imaginary_lit}                { return symbol(sym.IMAGINARY_LITERAL); }
       {Hex_lit}                      { return symbol(sym.HEX_LITERAL); }
-      {Decimal_lit}                  { return symbol(sym.DECIMAL_LITERAL); }
-      {Octal_lit}                    { return symbol(sym.OCTAL_LITERAL); } 
+      {Decimal_lit}                  {return symbol(sym.DECIMAL_LITERAL); }
+      {Octal_lit}                    {  return symbol(sym.OCTAL_LITERAL); } 
       {Float_lit}                    { return symbol(sym.FLOAT_LITERAL); }
       
       
      
-      \"                             { string.setLength(0); yybegin(STRING); }
+      \"                             {  buff.setLength(0); yybegin(STRING);  yybegin(STRING); }
 
 /* identifiers */ 
       {Pointer}                      { return symbol(sym.POINTER);}
-      {Identifier}                   { return symbol(sym.IDENTIFIER); }
+      {Identifier}                   { Tables.symTable.put(countID, yytext());int c = countID; countID++; return symbol(sym.IDENTIFIER); }
 
     }
 
 <STRING> {
-    \"                             { yybegin(YYINITIAL); 
-                                        return symbol(sym.STRING_LITERAL, string.toString()); }
-    [^\n\r\"\\]+                   { string.append( yytext() ); }
-    \\t                            { string.append('\t'); }
-    \\n                            { string.append('\n'); }
-
-    \\r                            { string.append('\r'); }
-    \\\"                           { string.append('\"'); }
-    \\                             { string.append('\\'); }
+    \u000A	                   { yybegin(YYINITIAL); return symbol(sym.ERROR_STRING,"EOF in string constant");}
+   // \"                             { yybegin(YYINITIAL); return symbol(sym.STRING_LITERAL, string.toString()); string_buf.append(yytext());   }
+      \"                             {Tables.stringTable.put(countString, buff);int c = countString; countString++; System.out.println("buffer: " + buff); return symbol(sym.STRING,c); }
+    [^\n\r\"\\]+                   { buff.append(yytext()); }
+    \\t                            { buff.append('\t'); }
+    \\n                            { buff.append('\n'); }
+    \\r                            { buff.append('\r'); }
+    \\\"                           { buff.append('\"'); }
+    \\                             { buff.append('\\'); }
 }
 
     /* error fallback */

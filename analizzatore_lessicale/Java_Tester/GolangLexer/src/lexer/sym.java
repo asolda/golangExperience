@@ -99,6 +99,9 @@ public class sym {
 	public static final int COMMENT = 543;
 	public static final int IMAGINARY_LITERAL=678;
 	public static final int FLOAT_LITERAL=876;
+	public static final int ERROR_STRING = -1;
+	public static final int SINGLEQUOTE = -10;
+	public static final int ERROR = -20;
 	
 	
 }
