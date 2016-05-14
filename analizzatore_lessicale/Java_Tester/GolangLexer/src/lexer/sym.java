@@ -95,7 +95,7 @@ public class sym {
 	public static final int COMPLEX64 = 345;
 	public static final int UINT16 = 34645;
 	public static final int COMPLEX128 = 546;
-	public static final int POINTER = 678;
+	public static final int POINTER = 679;
 	public static final int COMMENT = 543;
 	public static final int IMAGINARY_LITERAL=678;
 	public static final int FLOAT_LITERAL=876;

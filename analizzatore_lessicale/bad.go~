@@ -7,5 +7,5 @@ func mmain6() {
         _nosense(i)
     }
     String stringa = "Stringa senza chiusura
-
+"
 }

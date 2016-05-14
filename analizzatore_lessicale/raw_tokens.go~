@@ -23,9 +23,6 @@ import
 return
 var
 "una stringa"
-//un commento su singola linea 
-/*un commento su 
-due linee */
 123
 0xA
 wdwqd
