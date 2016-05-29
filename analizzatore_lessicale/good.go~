@@ -4,7 +4,8 @@ package main
 func main() {
 	i := 03
 	a := 0
-        int *puntatore
+	S
+        int variabile
 	float32 floatNumber 10.2 
 	10i
         String stringa := "waw"

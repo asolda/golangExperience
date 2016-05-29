@@ -1,0 +1,172 @@
+import java.io.*;
+import java_cup.runtime.*;
+import java.util.*;
+
+ 
+
+parser code {:
+    public void syntax_error(Symbol cur_token){
+	System.err.println("Syntax error at "+cur_token);
+    }
+    public static void newScope(){
+	typenames.push(new HashSet<String>());
+    }
+    public static void deleteScope(){
+	typenames.pop();
+    }
+    public static boolean lookupType(String name){
+	for (HashSet<String> scope: typenames)
+	    if (scope.contains(name)) return true;
+	return false;
+    }
+    public static void addType(String name){
+	typenames.peek().add(name);
+    }
+    public static LinkedList<HashSet<String>> typenames = new LinkedList<HashSet<String>>();
+    public Parser(Lexer lex, ComplexSymbolFactory sf) {
+	super(lex,sf);
+    }
+
+    public static void main(String args[]) {
+	try {
+	    Lexer lexer = new Lexer(new FileReader(args[0]));
+	    // start parsing
+	    Parser p = new Parser(lexer);
+	    System.out.println("Parser runs: ");
+            newScope();
+            p.parse();
+	    System.out.println("Parsing finished!");
+	} catch (Exception e) {
+	    e.printStackTrace();
+	} 
+    }
+:};
+
+terminal BREAK, DEFAULT, FUNC, INTERFACE, SELECT, ERROR;
+terminal ERROR_STRING,OCTAL_LITERAL,RUNE,INT16,UINT8,UINT16,STRING,HEX_LITERAL;
+terminal COMPLEX64,DECIMAL_LITERAL,INT,FLOAT_LITERAL,BYTE,UINTPTR;
+terminal IDENTIFIER, INT32, INT64,UINT, COMMENT,UINT32,UINT64,SINGLEQUOTE,STRING_LITERAL,IMAGINARY_LITERAL,COMPLEX128,INT8,FLOAT32, FLOAT64;
+terminal CASE, DEFER, GO, MAP, STRUCT;
+terminal CHAN, ELSE, GOTO, PACKAGE, SWITCH;
+terminal CONST, FALLTHROUGH, IF, RANGE, TYPE;
+terminal CONTINUE, FOR, IMPORT, RETURN, VAR;
+terminal EQ, EQEQ, PLUS, MINUS, TIME, AND, PLUSEQ, ANDEQ, ANDAND, NOTEQ;
+terminal RO, RC, OR, MINUSEQ, OREQ, OROR, AO, AOEQ, OS, CS, CAP, TIMEEQ;
+terminal CAPEQ, AOMINUS, AC, ACEQUALS, BRACEO, BRACEC, DIV, AOAO, DIVEQ, AOAOEQ, PLUSPLUS;
+terminal TPEQ, COMMA, SEMICOLON, PERC, ACAC, PERCEQ, ACACEQ, MINUSMINUS, NOT;
+terminal POINTPOINTPOINT, POINT, TP, ANDCAP, ANDCAPEQ, CONSTANT; 
+
+non terminal  program;
+non terminal  logic_operator;
+non terminal  if_statement;
+non terminal  statement;
+non terminal  declaration_statement;
+non terminal  assignment_statement; 
+non terminal  value_numeric;
+non terminal  value_string;
+non terminal  type_def_numeric;
+non terminal  type_def_string;
+non terminal  condition;
+non terminal  body;
+non terminal  composit_condition;
+non terminal  composit_statement;
+non terminal  string_statement;
+non terminal  package_statement;
+
+start with program;
+
+program 
+	::= package_statement composit_statement 
+;
+
+package_statement 
+	::= PACKAGE IDENTIFIER  {: System.out.println("Package"); :}
+;
+
+statement
+	::=declaration_statement
+	| assignment_statement
+	| if_statement
+	   
+;
+
+
+composit_statement
+	::= composit_statement statement
+	| statement
+;
+
+if_statement
+	::=IF composit_condition body   {: System.out.println("IF"); :}
+	|  IF composit_condition body ELSE body  {: System.out.println("IF+ELSE"); :}
+;
+
+
+composit_condition
+	::= composit_condition OROR condition
+	| composit_condition ANDAND condition 
+	| condition
+;
+
+condition
+	::= IDENTIFIER logic_operator IDENTIFIER
+	|  IDENTIFIER logic_operator value_numeric
+	|  value_numeric logic_operator IDENTIFIER
+	|  IDENTIFIER logic_operator value_string
+	|  value_string logic_operator IDENTIFIER
+ 	|  value_numeric logic_operator value_numeric
+	|  value_string logic_operator value_string
+;
+
+
+logic_operator
+	::= OROR | EQEQ | NOTEQ | ANDAND | ACEQUALS | AC | AO | AOEQ ;
+
+body 
+	::= BRACEO body BRACEC
+	| BRACEO composit_statement BRACEC
+	| BRACEO BRACEC
+;
+
+declaration_statement
+	::=type_def_numeric IDENTIFIER       {: System.out.println("declaration numeric"); :} 
+	| type_def_string IDENTIFIER       {: System.out.println("declaration string"); :}
+	| type_def_numeric IDENTIFIER:i TPEQ value_numeric:v {: System.out.println("declaration + initialization numeric  "+i+"="+v); :}
+	| type_def_string IDENTIFIER:i TPEQ value_string:v {: System.out.println("declaration + initialization string "+i+"="+v); :}
+ ;
+
+assignment_statement
+	::= IDENTIFIER TPEQ value_numeric  {: System.out.println("assignment numeric"); :} 
+	| IDENTIFIER TPEQ value_string  {: System.out.println("assignment string"); :} 
+	| IDENTIFIER TPEQ IDENTIFIER {: System.out.println("assignment"); :} 
+	| IDENTIFIER EQ value_numeric  {: System.out.println("assignment numeric"); :} 
+	| IDENTIFIER EQ value_string  {: System.out.println("assignment string"); :}
+	| IDENTIFIER EQ IDENTIFIER {: System.out.println("assignment"); :} 
+; 
+
+value_numeric
+	::= IMAGINARY_LITERAL:v   {: RESULT = v; :} 
+	| HEX_LITERAL:v {: RESULT = v; :}
+	| DECIMAL_LITERAL:v {: RESULT = v; :}
+	| OCTAL_LITERAL:v {: RESULT = v; :}
+	| FLOAT_LITERAL:v  {: RESULT = v; :}
+;
+
+value_string
+	::= STRING_LITERAL:v {: RESULT = v; :} 
+;
+
+type_def_numeric
+	::= INT32 
+	| INT64
+	| UINT
+	| INT	
+;
+
+type_def_string
+	::= STRING	
+;
+
+
+
+

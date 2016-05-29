@@ -10,7 +10,7 @@ import java.util.Hashtable;
 %cup
 %line
 %column
-%debug
+//%debug
 
 %eofval{
   
@@ -85,7 +85,7 @@ Hex_lit     = "0" [xX] [0-9a-fA-F] {Hex_digit}*
 Decimal_lit = [1-9] {Decimal_digit}* | "0"
 Octal_lit   = "0" {Octal_digit}*
 Float_lit = ({Decimal_lit} "." {Decimal_lit})
-Pointer = (\*{Identifier})
+
 Imaginary_lit = {Decimal_lit } "i" | {Float_lit} "i" 
 Identifier = [a-zA-Z_] {Letter}*
 
@@ -94,7 +94,7 @@ Identifier = [a-zA-Z_] {Letter}*
 %%
 
 /* keywords */
-
+//Pointer = (\*{Identifier})
 <YYINITIAL> "package"                { return symbol(sym.PACKAGE); }
 
 
@@ -167,7 +167,7 @@ Identifier = [a-zA-Z_] {Letter}*
 	"|="	{ return symbol(sym.OREQ); }     
 	"||"	{ return symbol(sym.OROR); }    
 	"<"	{ return symbol(sym.AO); }     
-	"<="	{ return symbol(sym.MINUSEQ); }    
+	"<="	{ return symbol(sym.AOEQ); }    
 	"["	{ return symbol(sym.OS); }    
 	"]"	{ return symbol(sym.CS); }
 	"^"	{ return symbol(sym.CAP); }     
@@ -219,7 +219,7 @@ Identifier = [a-zA-Z_] {Letter}*
       \"                             {  buff.setLength(0); yybegin(STRING);  yybegin(STRING); }
 
 /* identifiers */ 
-      {Pointer}                      { return symbol(sym.POINTER);}
+     // {Pointer}                      { return symbol(sym.POINTER);}
       {Identifier}                   { Tables.symTable.put(countID, yytext());int c = countID; countID++; return symbol(sym.IDENTIFIER); }
 
     }

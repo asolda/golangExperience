@@ -102,6 +102,8 @@ public class sym {
 	public static final int ERROR_STRING = -1;
 	public static final int SINGLEQUOTE = -10;
 	public static final int ERROR = -20;
+	public static final int AOEQ = 561;
+	public static final int ACEQUALS = 500;
 	
 	
 }
