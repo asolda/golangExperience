@@ -86,25 +86,17 @@ non terminal  composit_condition;
 non terminal  composit_statement;
 non terminal  string_statement;
 non terminal  package_statement;
+non terminal  else_statement;
 
 start with program;
 
 program 
 	::= package_statement:p composit_statement:lista  {: 
 	Node<String> radice = new Node<String>("Program"); 
-	Node<String> pr = (Node<String>) p; radice.addChild(pr,radice);  
-	//System.out.println(pr.getChildren().get(0).getChildren().get(0).getData()); 
-	//System.out.println("Parent data: " + pr.getParent().getData());  
+	Node<String> pr = (Node<String>) p; radice.addChild(pr,radice);   
 	ArrayList<Node<String>> l = (ArrayList<Node<String>>) lista;
 	for(int i=0;i<l.size();i++){ 
 		radice.addChild(l.get(i),radice);
-	}
-	for(int i=0; i<radice.getChildren().size();i++){
-	//System.out.println(radice.getChildren().get(i).getData());
-	System.out.println(radice.getChildren().get(i).getChildren().size());
-         /*for(int j=0; j<radice.getChildren().get(i).getChildren().size();j++){
-		System.out.println(radice.getChildren().get(i).getChildren().get(j));
-		}*/
 	}
 	System.out.println("------------------------------------");
         
@@ -114,35 +106,72 @@ program
 ;
 
 package_statement 
-	::= PACKAGE IDENTIFIER:v  {: System.out.println("Package"); Node<String> pack=new Node<String>("package"); Node<String> identifier =new Node<String>("Identifier"); String value = (String) v; identifier.addChild(value,identifier); pack.addChild(identifier,pack); RESULT=pack;  :}
+	::= PACKAGE IDENTIFIER:v  {: Node<String> pack=new Node<String>("package"); Node<String> identifier =new Node<String>("Identifier"); String value = (String) v; identifier.addChild(value,identifier); pack.addChild(identifier,pack); RESULT=pack;  :}
 ;
 
 statement
-	::=declaration_statement
-	| assignment_statement
-	| if_statement
+	::=declaration_statement {: Node<String> dn = new Node<String>("declaration-Node"); RESULT = dn;:}
+	| assignment_statement {: Node<String> an = new Node<String>("assignment-Node"); RESULT = an; :}
+	| if_statement {: Node<String> ifnode= (Node<String>) ifn; RESULT=ifnode; :}
+
+	| if_statement:ifn else_statement:elsen {:Node<String> ifElseNode = new Node<String>("if-else-Node");
+						Node<String> ifnode= (Node<String>) ifn;
+						Node<String> elsenode= (Node<String>) elsen;
+						ifElseNode.addChild(ifnode,ifElseNode);
+						ifElseNode.addChild(elsenode,ifElseNode);
+						 RESULT = ifElseNode;   :}
 	   
 ;
 
 
 composit_statement
-	::= composit_statement:cl statement:ll  {: 
-	System.out.println("COMPOSITE");
-	ArrayList<Node<String>> new_ll = (ArrayList<Node<String>>) ll;
+	::= statement:n composit_statement:cl  {: 
+	ArrayList<Node<String>> completeList = new ArrayList<Node<String>>();
+	Node<String> node = (Node<String>) n;
+	Node<String> st =new Node<String> ("Statement");
+	st.addChild(node,st);
 	ArrayList<Node<String>> new_cl = (ArrayList<Node<String>>) cl;
-	//if(new_ll != null) {
-		new_cl.add(new_ll.get(0));
-	//}
- 	RESULT=new_cl; 
+	for (int i=0;i<new_cl.size();i++){
+	completeList.add(new_cl.get(i));
+	}
+	completeList.add(st);
+	
+ 	RESULT=completeList; 
 	
 	:}
 
-	| statement {: ArrayList<Node<String>> ll = new ArrayList<Node<String>>(); Node<String> st =new Node<String> ("Statement");  ll.add(st); RESULT=ll; System.out.println("STATEMENT"); :}
+	| statement:n {:
+		Node<String> node = (Node<String>) n; 
+		ArrayList<Node<String>> ll = new ArrayList<Node<String>>(); 
+		Node<String> st =new Node<String> ("Statement");
+		st.addChild(node,st);  
+		ll.add(st);
+		RESULT=ll;  :}
 ;
 
 if_statement
-	::=IF composit_condition body   {: System.out.println("IF"); :}
-	|  IF composit_condition body ELSE body  {: System.out.println("IF+ELSE"); :}
+	::=IF composit_condition body:lista   {: 
+		Node<String> nodo = new Node<String>("if");
+		ArrayList<Node<String>> list= (ArrayList<Node<String>>) lista;
+		for(int i=0;i<list.size();i++){
+		nodo.addChild(list.get(i),nodo);
+		} 
+		RESULT = nodo;
+
+ :}
+;
+
+
+else_statement
+	::= ELSE body:lista    {: 
+		Node<String> nodo = new Node<String>("else");
+		ArrayList<Node<String>> list= (ArrayList<Node<String>>) lista;
+		for(int i=0;i<list.size();i++){
+		nodo.addChild(list.get(i),nodo);
+		} 
+		RESULT = nodo;
+
+ :}
 ;
 
 
@@ -167,25 +196,25 @@ logic_operator
 	::= OROR | EQEQ | NOTEQ | ANDAND | ACEQUALS | AC | AO | AOEQ ;
 
 body 
-	::= BRACEO body BRACEC
-	| BRACEO composit_statement BRACEC
+	::= BRACEO body:lista BRACEC {: ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; RESULT = list; :}
+	| BRACEO composit_statement:lista BRACEC  {: ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; RESULT = list; :}
 	| BRACEO BRACEC
 ;
 
 declaration_statement
-	::=type_def_numeric IDENTIFIER       {: System.out.println("declaration numeric"); :} 
-	| type_def_string IDENTIFIER       {: System.out.println("declaration string"); :}
-	| type_def_numeric IDENTIFIER:i TPEQ value_numeric:v {: System.out.println("declaration + initialization numeric  "+i+"="+v); :}
-	| type_def_string IDENTIFIER:i TPEQ value_string:v {: System.out.println("declaration + initialization string "+i+"="+v); :}
+	::=type_def_numeric IDENTIFIER       {: /*System.out.println("declaration numeric");*/ :} 
+	| type_def_string IDENTIFIER       {: /*System.out.println("declaration string");*/ :}
+	| type_def_numeric IDENTIFIER:i TPEQ value_numeric:v {: /*System.out.println("declaration + initialization numeric  "+i+"="+v);*/ :}
+	| type_def_string IDENTIFIER:i TPEQ value_string:v {: /*System.out.println("declaration + initialization string "+i+"="+v);*/ :}
  ;
 
 assignment_statement
-	::= IDENTIFIER TPEQ value_numeric  {: System.out.println("assignment numeric"); :} 
-	| IDENTIFIER TPEQ value_string  {: System.out.println("assignment string"); :} 
-	| IDENTIFIER TPEQ IDENTIFIER {: System.out.println("assignment"); :} 
-	| IDENTIFIER EQ value_numeric  {: System.out.println("assignment numeric"); :} 
-	| IDENTIFIER EQ value_string  {: System.out.println("assignment string"); :}
-	| IDENTIFIER EQ IDENTIFIER {: System.out.println("assignment"); :} 
+	::= IDENTIFIER TPEQ value_numeric  {: /*System.out.println("assignment numeric");*/ :} 
+	| IDENTIFIER TPEQ value_string  {: /*System.out.println("assignment string");*/ :} 
+	| IDENTIFIER TPEQ IDENTIFIER {: /*System.out.println("assignment");*/ :} 
+	| IDENTIFIER EQ value_numeric  {: /*System.out.println("assignment numeric");*/ :} 
+	| IDENTIFIER EQ value_string  {: /*System.out.println("assignment string");*/ :}
+	| IDENTIFIER EQ IDENTIFIER {: /*System.out.println("assignment");*/ :} 
 ; 
 
 value_numeric

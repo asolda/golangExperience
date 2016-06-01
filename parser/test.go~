@@ -7,8 +7,11 @@ if x > max && x < min || x == max {
 else{ 
 	string stringa:="ciao"  
 	}
+if x<c {}
 
-if x <g {}
+
+
+
 
 
 

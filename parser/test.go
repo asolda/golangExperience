@@ -1,7 +1,5 @@
 package main
 
-if x <g {}
-
 if x > max && x < min || x == max {
 	int v:=10
         
@@ -9,6 +7,12 @@ if x > max && x < min || x == max {
 else{ 
 	string stringa:="ciao"  
 	}
+if x<c {string stringa:="ciao"}
+string stringa:="ciao"
+string stringa:="ciao"
+string stringa:="ciao"
+
+
 
 
 

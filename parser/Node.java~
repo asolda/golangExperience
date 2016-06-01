@@ -21,14 +21,15 @@ public class Node<T> {
 
     public void visita(Node<String> n){
 	if(n.getChildren().size()==0){
-		System.out.println(n.getData());
+		System.out.println(n.getData()+"<----"+n.getParent().getData());
 		return;
 	}
 	for(int i=0;i<n.getChildren().size();i++){
 		visita(n.getChildren().get(i));
 	}
-	System.out.println(n.getData());
-        }
+        if(n.getParent()!=null)
+	   System.out.println(n.getData()+"<----"+n.getParent().getData());
+    }
 
     private void setParent(Node<T> parent) {
         //parent.addChild(this,parent);
