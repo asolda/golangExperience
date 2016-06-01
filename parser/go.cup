@@ -27,6 +27,17 @@ parser code {:
 	super(lex,sf);
     }
 
+    public static void visita(Node<String> n){
+	if(n.getChildren().size()==0){
+		System.out.println(n.getData());
+		return;
+	}
+	for(int i=0;i<n.getChildren().size();i++){
+		visita(n.getChildren().get(i));
+	}
+	System.out.println(n.getData());
+    }
+
     public static void main(String args[]) {
 	try {
 	    Lexer lexer = new Lexer(new FileReader(args[0]));
@@ -34,7 +45,10 @@ parser code {:
 	    Parser p = new Parser(lexer);
 	    System.out.println("Parser runs: ");
             newScope();
+		
             p.parse();
+
+	
 	    System.out.println("Parsing finished!");
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -76,11 +90,31 @@ non terminal  package_statement;
 start with program;
 
 program 
-	::= package_statement composit_statement 
+	::= package_statement:p composit_statement:lista  {: 
+	Node<String> radice = new Node<String>("Program"); 
+	Node<String> pr = (Node<String>) p; radice.addChild(pr,radice);  
+	//System.out.println(pr.getChildren().get(0).getChildren().get(0).getData()); 
+	//System.out.println("Parent data: " + pr.getParent().getData());  
+	ArrayList<Node<String>> l = (ArrayList<Node<String>>) lista;
+	for(int i=0;i<l.size();i++){ 
+		radice.addChild(l.get(i),radice);
+	}
+	for(int i=0; i<radice.getChildren().size();i++){
+	//System.out.println(radice.getChildren().get(i).getData());
+	System.out.println(radice.getChildren().get(i).getChildren().size());
+         /*for(int j=0; j<radice.getChildren().get(i).getChildren().size();j++){
+		System.out.println(radice.getChildren().get(i).getChildren().get(j));
+		}*/
+	}
+	System.out.println("------------------------------------");
+        
+        radice.visita(radice);
+	
+	:}
 ;
 
 package_statement 
-	::= PACKAGE IDENTIFIER  {: System.out.println("Package"); :}
+	::= PACKAGE IDENTIFIER:v  {: System.out.println("Package"); Node<String> pack=new Node<String>("package"); Node<String> identifier =new Node<String>("Identifier"); String value = (String) v; identifier.addChild(value,identifier); pack.addChild(identifier,pack); RESULT=pack;  :}
 ;
 
 statement
@@ -92,8 +126,18 @@ statement
 
 
 composit_statement
-	::= composit_statement statement
-	| statement
+	::= composit_statement:cl statement:ll  {: 
+	System.out.println("COMPOSITE");
+	ArrayList<Node<String>> new_ll = (ArrayList<Node<String>>) ll;
+	ArrayList<Node<String>> new_cl = (ArrayList<Node<String>>) cl;
+	if(new_ll != null) {
+		new_cl.add(new_ll.get(0));
+	}
+ 	RESULT=new_cl; 
+	
+	:}
+
+	| statement {: ArrayList<Node<String>> ll = new ArrayList<Node<String>>(); Node<String> st =new Node<String> ("Statement");  ll.add(st); RESULT=ll; System.out.println("STATEMENT"); :}
 ;
 
 if_statement

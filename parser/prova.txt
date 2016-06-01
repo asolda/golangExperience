@@ -1,0 +1,8 @@
+Parser runs: 
+Package
+declaration + initialization numeric  v=10
+declaration + initialization string stringa=ciao
+IF
+IF+ELSE
+[Node@15db9742]
+Parsing finished!
