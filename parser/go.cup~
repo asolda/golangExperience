@@ -72,10 +72,13 @@ terminal POINTPOINTPOINT, POINT, TP, ANDCAP, ANDCAPEQ, CONSTANT;
 
 non terminal  program;
 non terminal  logic_operator;
+non terminal  logic_operator_string;
 non terminal  if_statement;
 non terminal  statement;
 non terminal  declaration_statement;
-non terminal  assignment_statement; 
+non terminal  initialization_statement_numeric; 
+non terminal  assignment_statement;
+non terminal  initialization_statement_string;
 non terminal  value_numeric;
 non terminal  value_string;
 non terminal  type_def_numeric;
@@ -110,11 +113,10 @@ package_statement
 ;
 
 statement
-	::=declaration_statement {: Node<String> dn = new Node<String>("declaration-Node"); RESULT = dn;:}
-	| assignment_statement {: Node<String> an = new Node<String>("assignment-Node"); RESULT = an; :}
-	| if_statement {: Node<String> ifnode= (Node<String>) ifn; RESULT=ifnode; :}
-
-	| if_statement:ifn else_statement:elsen {:Node<String> ifElseNode = new Node<String>("if-else-Node");
+	::=declaration_statement:node {: Node<String> dn = (Node<String>) node; RESULT = dn; :}
+	| assignment_statement:node {:  RESULT = (Node<String>) node; :}
+	| if_statement:ifn {: Node<String> ifnode= (Node<String>) ifn; RESULT=ifnode; :}
+	| if_statement:ifn else_statement:elsen {:Node<String> ifElseNode = new Node<String>("if-else");
 						Node<String> ifnode= (Node<String>) ifn;
 						Node<String> elsenode= (Node<String>) elsen;
 						ifElseNode.addChild(ifnode,ifElseNode);
@@ -128,13 +130,11 @@ composit_statement
 	::= statement:n composit_statement:cl  {: 
 	ArrayList<Node<String>> completeList = new ArrayList<Node<String>>();
 	Node<String> node = (Node<String>) n;
-	Node<String> st =new Node<String> ("Statement");
-	st.addChild(node,st);
 	ArrayList<Node<String>> new_cl = (ArrayList<Node<String>>) cl;
 	for (int i=0;i<new_cl.size();i++){
 	completeList.add(new_cl.get(i));
 	}
-	completeList.add(st);
+	completeList.add(node);
 	
  	RESULT=completeList; 
 	
@@ -142,33 +142,28 @@ composit_statement
 
 	| statement:n {:
 		Node<String> node = (Node<String>) n; 
-		ArrayList<Node<String>> ll = new ArrayList<Node<String>>(); 
-		Node<String> st =new Node<String> ("Statement");
-		st.addChild(node,st);  
-		ll.add(st);
+		ArrayList<Node<String>> ll = new ArrayList<Node<String>>();   
+		ll.add(node);
 		RESULT=ll;  :}
 ;
 
 if_statement
-	::=IF composit_condition body:lista   {: 
+	::=IF composit_condition:cond body:bn   {: 
 		Node<String> nodo = new Node<String>("if");
-		ArrayList<Node<String>> list= (ArrayList<Node<String>>) lista;
-		for(int i=0;i<list.size();i++){
-		nodo.addChild(list.get(i),nodo);
-		} 
+		ArrayList<Node<String>> lista = (ArrayList<Node<String>>) cond;
+		for(int i=0;i<lista.size();i++){
+			nodo.addChild(lista.get(i),nodo);
+		}
+		nodo.addChild((Node<String>) bn,nodo);
 		RESULT = nodo;
-
- :}
+		:}
 ;
 
 
 else_statement
-	::= ELSE body:lista    {: 
+	::= ELSE body:bn    {: 
 		Node<String> nodo = new Node<String>("else");
-		ArrayList<Node<String>> list= (ArrayList<Node<String>>) lista;
-		for(int i=0;i<list.size();i++){
-		nodo.addChild(list.get(i),nodo);
-		} 
+		nodo.addChild((Node<String>) bn,nodo);
 		RESULT = nodo;
 
  :}
@@ -176,68 +171,331 @@ else_statement
 
 
 composit_condition
-	::= composit_condition OROR condition
-	| composit_condition ANDAND condition 
-	| condition
+	::= composit_condition:list1 OROR condition:list2 {:
+		Node<String> op = new Node<String>("OR");
+		ArrayList<Node<String>> lista = new ArrayList<Node<String>>();
+		ArrayList<Node<String>> lista1 = (ArrayList<Node<String>>) list1;
+		ArrayList<Node<String>> lista2 = (ArrayList<Node<String>>) list2;
+		for (int i=0;i<lista1.size();i++){
+			lista.add(lista1.get(i));
+		}
+		lista.add(op);
+		lista.add(lista2.get(0));
+		RESULT=lista;
+	:}
+	| composit_condition:list1 ANDAND condition:list2 2 {:
+		Node<String> op = new Node<String>("AND");
+		ArrayList<Node<String>> lista = new ArrayList<Node<String>>();
+		ArrayList<Node<String>> lista1 = (ArrayList<Node<String>>) list1;
+		ArrayList<Node<String>> lista2 = (ArrayList<Node<String>>) list2;
+		for (int i=0;i<lista1.size();i++){
+			lista.add(lista1.get(i));
+		}
+		lista.add(op);
+		lista.add(lista2.get(0));
+		RESULT=lista;
+	:}
+	| condition:v {: 
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		ArrayList<Node<String>> con= (ArrayList<Node<String>>) v;
+		list.add(con.get(0));
+		RESULT= list; :}
 ;
 
 condition
-	::= IDENTIFIER logic_operator IDENTIFIER
-	|  IDENTIFIER logic_operator value_numeric
-	|  value_numeric logic_operator IDENTIFIER
-	|  IDENTIFIER logic_operator value_string
-	|  value_string logic_operator IDENTIFIER
- 	|  value_numeric logic_operator value_numeric
-	|  value_string logic_operator value_string
+	::= IDENTIFIER:i1 logic_operator IDENTIFIER:i2 {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> id1 = new Node<String>((String) i1);
+		Node<String> id2 = new Node<String>((String) i2);
+		op.addChild(id1,op);
+		op.addChild(id2,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
+	|  IDENTIFIER:i1 logic_operator value_numeric:value {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> id1 = new Node<String>((String) i1);
+		Node<String> val = new Node<String>((String) value);
+		op.addChild(id1,op);
+		op.addChild(val,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
+	|  value_numeric:value logic_operator IDENTIFIER:i1 {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> id1 = new Node<String>((String) i1);
+		Node<String> val = new Node<String>((String) value);
+		op.addChild(val,op);
+		op.addChild(id1,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
+	|  IDENTIFIER:i1 logic_operator_string value_string:value {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> id1 = new Node<String>((String) i1);
+		Node<String> val = new Node<String>(value.toString());
+		op.addChild(id1,op);
+		op.addChild(val,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
+	|  value_string:value logic_operator_string IDENTIFIER:i1 {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> id1 = new Node<String>((String) i1);
+		Node<String> val = new Node<String>(value.toString());
+		op.addChild(val,op);
+		op.addChild(id1,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	  :}
+ 	|  value_numeric:value1 logic_operator value_numeric:value2   {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> val1 = new Node<String>((String) value1);
+		Node<String> val2 = new Node<String>((String) value2);		
+		op.addChild(val1,op);
+		op.addChild(val2,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
+	|  value_string:value1 logic_operator_string value_string:value2 {: 
+		Node<String> cond = new Node<String>("condition");
+		Node<String> op = new Node<String>("logic_operator");
+		Node<String> val1 = new Node<String>(value1.toString());
+		Node<String> val2 = new Node<String>(value2.toString());
+		op.addChild(val1,op);
+		op.addChild(val2,op);
+		cond.addChild(op,cond);
+		ArrayList<Node<String>> list = new ArrayList<Node<String>>();
+		list.add(cond);
+		RESULT = list;
+	 :}
 ;
 
 
 logic_operator
-	::= OROR | EQEQ | NOTEQ | ANDAND | ACEQUALS | AC | AO | AOEQ ;
+	::= OROR 
+	| EQEQ 
+	| NOTEQ 	
+	| ANDAND 
+	| ACEQUALS 
+	| AC 
+	| AO 
+	| AOEQ ;
 
+logic_operator_string
+	::= EQEQ 
+	| NOTEQ 	
+;
 body 
-	::= BRACEO body:lista BRACEC {: ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; RESULT = list; :}
-	| BRACEO composit_statement:lista BRACEC  {: ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; RESULT = list; :}
-	| BRACEO BRACEC
+	::= BRACEO body:lista BRACEC {: 
+			Node<String> body = new Node<String> ("body"); 
+			ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; 
+			for(int i=0;i<list.size();i++){
+				body.addChild(list.get(i),body);
+			}
+			RESULT = body; :}
+	| BRACEO composit_statement:lista BRACEC  {: 
+			Node<String> body = new Node<String> ("body"); 
+			ArrayList<Node<String>> list = (ArrayList<Node<String>>) lista; 
+			for(int i=0;i<list.size();i++){
+				body.addChild(list.get(i),body);
+			}
+			RESULT = body; :}
+	| BRACEO BRACEC {: Node<String> body =new Node<String>("body"); RESULT=body; :}
 ;
 
 declaration_statement
-	::=type_def_numeric IDENTIFIER       {: /*System.out.println("declaration numeric");*/ :} 
-	| type_def_string IDENTIFIER       {: /*System.out.println("declaration string");*/ :}
-	| type_def_numeric IDENTIFIER:i TPEQ value_numeric:v {: /*System.out.println("declaration + initialization numeric  "+i+"="+v);*/ :}
-	| type_def_string IDENTIFIER:i TPEQ value_string:v {: /*System.out.println("declaration + initialization string "+i+"="+v);*/ :}
+	::=type_def_numeric:tipo IDENTIFIER:v       {: 
+		String value = (String) v; 
+		Node<String> type = (Node<String>) tipo;
+		Node<String> nodo = new Node<String>(value); 
+		Node<String> declaration = new Node<String> ("Declaration");
+		Node<String> identifier = new Node<String> ("Identifier");
+		identifier.addChild(nodo,identifier);
+		declaration.addChild(type,declaration);
+		declaration.addChild(identifier,declaration);
+		RESULT=declaration;
+		 
+	:} 
+	| type_def_string:tipo IDENTIFIER:v       {: 
+		String value = (String) v; 
+		Node<String> type = (Node<String>) tipo;
+		Node<String> nodo = new Node<String>(value); 
+		Node<String> declaration = new Node<String> ("Declaration");
+		Node<String> identifier = new Node<String> ("Identifier");
+		identifier.addChild(nodo,identifier);
+		declaration.addChild(type,declaration);
+		declaration.addChild(identifier,declaration);
+                
+		RESULT=declaration;
+		 
+	:} 
+	| type_def_numeric:tipo initialization_statement_numeric:an {:  
+		Node<String> type = (Node<String>) tipo; 
+		Node<String> ass = (Node<String>) an;
+		Node<String> declaration = new Node<String> ("Declaration");
+		declaration.addChild(type,declaration);
+		declaration.addChild(ass,declaration);
+		RESULT=declaration; 
+	
+	:}
+	| type_def_string:tipo initialization_statement_string:an {:  
+		Node<String> type = (Node<String>) tipo; 
+		Node<String> ass = (Node<String>) an;
+		Node<String> declaration = new Node<String> ("Declaration");
+		declaration.addChild(type,declaration);
+		declaration.addChild(ass,declaration);
+		RESULT=declaration; 
+	
+	:}
  ;
 
-assignment_statement
-	::= IDENTIFIER TPEQ value_numeric  {: /*System.out.println("assignment numeric");*/ :} 
-	| IDENTIFIER TPEQ value_string  {: /*System.out.println("assignment string");*/ :} 
-	| IDENTIFIER TPEQ IDENTIFIER {: /*System.out.println("assignment");*/ :} 
-	| IDENTIFIER EQ value_numeric  {: /*System.out.println("assignment numeric");*/ :} 
-	| IDENTIFIER EQ value_string  {: /*System.out.println("assignment string");*/ :}
-	| IDENTIFIER EQ IDENTIFIER {: /*System.out.println("assignment");*/ :} 
+initialization_statement_numeric
+	::= IDENTIFIER:ide TPEQ value_numeric:val  {: 
+		String ident= (String) ide;
+		String valore = (String) val;
+		Node<String> identifier = new Node<String>("Identifier"); 
+		Node<String> ident_v= new Node<String>(ident);
+		Node<String> value = new Node<String> (valore);
+		identifier.addChild(ident_v,identifier);
+		Node<String> ass_op = new Node<String>("initialization_op");
+		ass_op.addChild(identifier,ass_op);
+		ass_op.addChild(value,ass_op);
+		RESULT = ass_op;
+		
+	 :} 
+	| IDENTIFIER:id1 TPEQ IDENTIFIER:id2 {:
+		String ident1= (String) id1;
+		String ident2 = (String) id2;
+		Node<String> identifier1 = new Node<String>("Identifier"); 
+		Node<String> identifier2 = new Node<String>("Identifier"); 
+		Node<String> ident_v1= new Node<String>(ident1);
+		Node<String> ident_v2 = new Node<String> (ident2);
+		identifier1.addChild(ident_v1,identifier1);
+		identifier2.addChild(ident_v2,identifier2);
+		Node<String> ass_op = new Node<String>("initialization_op");
+		ass_op.addChild(identifier1,ass_op);
+		ass_op.addChild(identifier2,ass_op);
+		RESULT = ass_op; :}
+	 
 ; 
 
+initialization_statement_string
+	::= IDENTIFIER:ide TPEQ value_string:val  {: 
+		String ident= (String) ide;
+		String valore = val.toString();
+		Node<String> identifier = new Node<String>("Identifier"); 
+		Node<String> ident_v= new Node<String>(ident);
+		Node<String> value = new Node<String> (valore);
+		identifier.addChild(ident_v,identifier);
+		Node<String> ass_op = new Node<String>("initialization_op");
+		ass_op.addChild(identifier,ass_op);
+		ass_op.addChild(value,ass_op);
+		RESULT = ass_op;
+		
+	 :} 
+	| IDENTIFIER:id1 TPEQ IDENTIFIER:id2 
+		{:id2 String ident1= (String) id1;
+		String ident2 = (String) id2;
+		Node<String> identifier1 = new Node<String>("Identifier"); 
+		Node<String> identifier2 = new Node<String>("Identifier"); 
+		Node<String> ident_v1= new Node<String>(ident1);
+		Node<String> ident_v2 = new Node<String> (ident2);
+		identifier1.addChild(ident_v1,identifier1);
+		identifier2.addChild(ident_v2,identifier2);
+		Node<String> ass_op = new Node<String>("initialization_op");
+		ass_op.addChild(identifier1,ass_op);
+		ass_op.addChild(identifier2,ass_op);
+		RESULT = ass_op; :}
+; 
+
+assignment_statement
+	::= IDENTIFIER:ide EQ value_string:val  {: 
+		String ident= (String) ide;
+		String valore = val.toString();
+		Node<String> identifier = new Node<String>("Identifier"); 
+		Node<String> ident_v= new Node<String>(ident);
+		Node<String> value = new Node<String> (valore);
+		identifier.addChild(ident_v,identifier);
+		Node<String> ass_op = new Node<String>("assignment_op");
+		ass_op.addChild(identifier,ass_op);
+		ass_op.addChild(value,ass_op);
+		RESULT = ass_op;
+		
+	 :} 
+	| IDENTIFIER:ide EQ value_numeric:val  {: 
+		String ident= (String) ide;
+		String valore = val.toString();
+		Node<String> identifier = new Node<String>("Identifier"); 
+		Node<String> ident_v= new Node<String>(ident);
+		Node<String> value = new Node<String> (valore);
+		identifier.addChild(ident_v,identifier);
+		Node<String> ass_op = new Node<String>("assignment_op");
+		ass_op.addChild(identifier,ass_op);
+		ass_op.addChild(value,ass_op);
+		RESULT = ass_op;
+		
+	 :} 
+	| IDENTIFIER:id1 EQ IDENTIFIER:id2 {: 
+		String ident1= (String) id1;
+		String ident2 = (String) id2;
+		Node<String> identifier1 = new Node<String>("Identifier"); 
+		Node<String> identifier2 = new Node<String>("Identifier"); 
+		Node<String> ident_v1= new Node<String>(ident1);
+		Node<String> ident_v2 = new Node<String> (ident2);
+		identifier1.addChild(ident_v1,identifier1);
+		identifier2.addChild(ident_v2,identifier2);
+		Node<String> ass_op = new Node<String>("assignment_op");
+		ass_op.addChild(identifier1,ass_op);
+		ass_op.addChild(identifier2,ass_op);
+		RESULT = ass_op;
+		
+	 :} 
+; 
+
+
+
+
 value_numeric
-	::= IMAGINARY_LITERAL:v   {: RESULT = v; :} 
-	| HEX_LITERAL:v {: RESULT = v; :}
-	| DECIMAL_LITERAL:v {: RESULT = v; :}
-	| OCTAL_LITERAL:v {: RESULT = v; :}
-	| FLOAT_LITERAL:v  {: RESULT = v; :}
+	::= IMAGINARY_LITERAL:v   {: String si= (String) v;  RESULT = si; :} 
+	| HEX_LITERAL:v {: String si= (String) v;  RESULT = si; :}
+	| DECIMAL_LITERAL:v {: String si= (String) v;  RESULT = si; :}
+	| OCTAL_LITERAL:v {: String si= (String) v;  RESULT = si; :}
+	| FLOAT_LITERAL:v  {: String si= (String) v;  RESULT = si; :}
 ;
 
 value_string
-	::= STRING_LITERAL:v {: RESULT = v; :} 
+	::= STRING_LITERAL:v {: RESULT = v.toString(); :} 
 ;
 
 type_def_numeric
-	::= INT32 
-	| INT64
-	| UINT
-	| INT	
+	::= INT32 {: Node<String> node = new Node<String>("INT32"); RESULT=node; :}
+	| INT64   {: Node<String> node = new Node<String>("INT64"); RESULT=node; :}
+	| UINT    {: Node<String> node = new Node<String>("UNIT"); RESULT=node; :}
+	| INT	  {: Node<String> node = new Node<String>("INT"); RESULT=node; :}
+	| FLOAT32 {: Node<String> node = new Node<String>("FLOAT32"); RESULT=node; :}
+	| FLOAT64 {: Node<String> node = new Node<String>("FLOAT64"); RESULT=node; :}
 ;
-
 type_def_string
-	::= STRING	
+	::= STRING	{: Node<String> node = new Node<String>("STRING"); RESULT=node; :}
 ;
 
 

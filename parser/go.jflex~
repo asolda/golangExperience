@@ -82,7 +82,7 @@ Octal_lit   = "0" {Octal_digit}*
 Float_lit = ({Decimal_lit} "." {Decimal_lit})
 
 Imaginary_lit = {Decimal_lit } "i" | {Float_lit} "i" 
-Identifier = [a-zA-Z_] {Letter}*
+Identifier = [a-zA-Z_] {Letter | Decimal_digit}*
 
 %state COMMENT, STRING
 
@@ -220,7 +220,7 @@ Identifier = [a-zA-Z_] {Letter}*
     }
 
 <STRING> {
-    \"                             { yybegin(YYINITIAL); return symbol(sym.STRING_LITERAL,yytext());  }
+    \"                             { yybegin(YYINITIAL); return symbol(sym.STRING_LITERAL,buff);  }
     \u000A	                   { yybegin(YYINITIAL); return symbol(sym.ERROR_STRING);}
     [^\n\r\"\\]+                   { buff.append(yytext()); }
     \\t                            { buff.append('\t'); }

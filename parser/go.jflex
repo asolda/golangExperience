@@ -82,7 +82,7 @@ Octal_lit   = "0" {Octal_digit}*
 Float_lit = ({Decimal_lit} "." {Decimal_lit})
 
 Imaginary_lit = {Decimal_lit } "i" | {Float_lit} "i" 
-Identifier = [a-zA-Z_] {Letter}*
+Identifier = [a-zA-Z_] [a-zA-Z0-9]*
 
 %state COMMENT, STRING
 

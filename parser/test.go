@@ -1,17 +1,16 @@
 package main
 
-if x > max && x < min || x == max {
-	int v:=10
-        
-}
-else{ 
-	string stringa:="ciao"  
-	}
-if x<c {string stringa:="ciao"}
-string stringa:="ciao"
-string stringa:="ciao"
-string stringa:="ciao"
+if  "wer"=="gf"  {
+     int vart:=5
 
+}
+else{ if x>f {z=k y=5 vaasd="asdasdsa"} }
+
+int variabile1:=45
+int variabile2
+variabile3=45
+string stringa1:="ciao1"
+stringa2="ciao2"
 
 
 
